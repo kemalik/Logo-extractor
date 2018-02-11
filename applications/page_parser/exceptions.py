@@ -1,0 +1,2 @@
+class BrowserClientException(Exception):
+    pass
