@@ -1,3 +1,5 @@
+from django.conf import settings
+
 from selenium import webdriver
 from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
 
@@ -8,12 +10,12 @@ class BrowserClient(object):
     def __init__(self):
         try:
             self.chrome = webdriver.Remote(
-                command_executor='http://localhost:4444/wd/hub',
+                command_executor=settings.SELENIUM_URL,
                 desired_capabilities=DesiredCapabilities.CHROME)
         except Exception as e:
             raise BrowserClientException(e)
 
-    def get_page(self, url):
+    def get_url_source(self, url):
         self.chrome.get(url=url)
         return self.chrome.page_source
 
