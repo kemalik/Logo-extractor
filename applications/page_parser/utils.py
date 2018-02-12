@@ -13,10 +13,15 @@ class BrowserClient(object):
                 command_executor=settings.SELENIUM_URL,
                 desired_capabilities=DesiredCapabilities.CHROME)
         except Exception as e:
-            raise BrowserClientException(e)
+            raise BrowserClientException('Unable init webdriver {}'.format(e))
 
     def get_url_source(self, url):
-        self.chrome.get(url=url)
+        try:
+            self.chrome.get(url=url)
+        except Exception as e:
+            raise BrowserClientException(
+                'Unable to get page source, {exception}'.format(exception=e)
+            )
         return self.chrome.page_source
 
     def __del__(self):
