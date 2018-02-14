@@ -9,12 +9,19 @@ from applications.page_parser.exceptions import BrowserClientException, LogoExtr
 logger = logging.getLogger(__file__)
 
 
+class HtmlTag(object):
+    def __init__(self, tag, is_image):
+        self.is_image = is_image
+        self.tag = tag
+
+
 class BrowserClient(object):
     def __init__(self):
         try:
             self.browser = webdriver.Remote(
                 command_executor=settings.SELENIUM_URL,
-                desired_capabilities=DesiredCapabilities.CHROME)
+                desired_capabilities=DesiredCapabilities.CHROME
+            )
         except Exception as e:
             raise BrowserClientException('Unable init webdriver {}'.format(e))
 
@@ -31,6 +38,12 @@ class BrowserClient(object):
 
         return self.browser.page_source
 
+    def get_images_in_page(self):
+        self.browser.find_elements_by_xpath('//body//img')
+
+    def get_image_containers(self):
+        self.browser.find_elements_by_xpath('//body//*[not(script|style|img)]')
+
     def __del__(self):
         self.browser.quit()
 
@@ -40,11 +53,11 @@ class LogoExtractor(object):
         self.url = url
 
     def get_site_logo(self):
-        client = BrowserClient()
+        browser_client = BrowserClient()
         logging.debug('Browser client initialized')
 
         try:
-            result = client.get_url_source(self.url)
+            result = browser_client.get_url_source(self.url)
         except BrowserClientException as e:
             logging.error(e)
             raise LogoExtractorException
