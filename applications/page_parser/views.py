@@ -2,8 +2,8 @@ import logging
 
 from django.views.generic import TemplateView
 
-from applications.page_parser.exceptions import BrowserClientException
-from applications.page_parser.utils import BrowserClient
+from applications.page_parser.exceptions import LogoExtractorException
+from applications.page_parser.utils import LogoExtractor
 
 logger = logging.getLogger(__file__)
 
@@ -14,18 +14,17 @@ class ResultView(TemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
-        client = BrowserClient()
-        logging.debug('Browser client initialized')
-
         url = self.request.GET.get('url')
 
         if not url:
             context['error'] = 'Please enter url'
             return context
 
+        logo_extractor = LogoExtractor(url)
+
         try:
-            result = client.get_url_source(url)
-        except BrowserClientException as e:
+            result = logo_extractor.get_site_logo()
+        except LogoExtractorException as e:
             logging.error(e)
             context['error'] = e
             return context

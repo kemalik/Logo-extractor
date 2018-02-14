@@ -1,9 +1,12 @@
-from django.conf import settings
+import logging
 
+from django.conf import settings
 from selenium import webdriver
 from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
 
-from applications.page_parser.exceptions import BrowserClientException
+from applications.page_parser.exceptions import BrowserClientException, LogoExtractorException
+
+logger = logging.getLogger(__file__)
 
 
 class BrowserClient(object):
@@ -30,3 +33,20 @@ class BrowserClient(object):
 
     def __del__(self):
         self.browser.quit()
+
+
+class LogoExtractor(object):
+    def __init__(self, url):
+        self.url = url
+
+    def get_site_logo(self):
+        client = BrowserClient()
+        logging.debug('Browser client initialized')
+
+        try:
+            result = client.get_url_source(self.url)
+        except BrowserClientException as e:
+            logging.error(e)
+            raise LogoExtractorException
+
+        return result
