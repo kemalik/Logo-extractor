@@ -20,7 +20,8 @@ class BrowserClient(object):
         try:
             self.browser = webdriver.Remote(
                 command_executor=settings.SELENIUM_URL,
-                desired_capabilities=DesiredCapabilities.CHROME
+                desired_capabilities=DesiredCapabilities.CHROME,
+                keep_alive=True
             )
         except Exception as e:
             raise BrowserClientException('Unable init webdriver {}'.format(e))
@@ -38,11 +39,34 @@ class BrowserClient(object):
 
         return self.browser.page_source
 
+    def get_elements_by_xpath(self, xpath):
+        return self.browser.find_elements_by_xpath(xpath)
+
     def get_images_in_page(self):
-        self.browser.find_elements_by_xpath('//body//img')
+        images_in_page = []
+        images = self.get_elements_by_xpath('//body//img')
+        for image in images:
+            images_in_page.append(
+                HtmlTag(tag=image, is_image=True)
+            )
+
+        return images_in_page
 
     def get_image_containers(self):
-        self.browser.find_elements_by_xpath('//body//*[not(script|style|img)]')
+        image_containers_in_page = []
+        elements = self.get_elements_by_xpath('//body//*[not(script|style|img)]')
+
+        for element in elements:
+            element_style = element.value_of_css_property('background-image')
+            if element_style != 'none':
+                image_containers_in_page.append(
+                    HtmlTag(element, False)
+                )
+        return image_containers_in_page
+
+    def get_potential_logos(self):
+        elements = [self.get_images_in_page() + self.get_image_containers()]
+        return elements
 
     def __del__(self):
         self.browser.quit()
@@ -55,6 +79,9 @@ class LogoExtractor(object):
     def get_site_logo(self):
         browser_client = BrowserClient()
         logging.debug('Browser client initialized')
+
+        browser_client.open_url(self.url)
+        browser_client.get_potential_logos()
 
         try:
             result = browser_client.get_url_source(self.url)
