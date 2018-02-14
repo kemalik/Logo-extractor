@@ -17,12 +17,18 @@ class ResultView(TemplateView):
         client = BrowserClient()
         logging.debug('Browser client initialized')
 
+        url = self.request.GET.get('url')
+
+        if not url:
+            context['error'] = 'Please enter url'
+            return context
+
         try:
-            r = client.get_url_source('https://google.com')
+            result = client.get_url_source(url)
         except BrowserClientException as e:
             logging.error(e)
             context['error'] = e
             return context
 
-        context['result'] = r
+        context['result'] = result
         return context

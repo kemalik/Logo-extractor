@@ -9,20 +9,24 @@ from applications.page_parser.exceptions import BrowserClientException
 class BrowserClient(object):
     def __init__(self):
         try:
-            self.chrome = webdriver.Remote(
+            self.browser = webdriver.Remote(
                 command_executor=settings.SELENIUM_URL,
                 desired_capabilities=DesiredCapabilities.CHROME)
         except Exception as e:
             raise BrowserClientException('Unable init webdriver {}'.format(e))
 
-    def get_url_source(self, url):
+    def open_url(self, url):
         try:
-            self.chrome.get(url=url)
+            self.browser.get(url=url)
         except Exception as e:
             raise BrowserClientException(
-                'Unable to get page source, {exception}'.format(exception=e)
+                'Unable to open url {url}, {exception}'.format(url=url, exception=e)
             )
-        return self.chrome.page_source
+
+    def get_url_source(self, url):
+        self.open_url(url)
+
+        return self.browser.page_source
 
     def __del__(self):
-        self.chrome.quit()
+        self.browser.quit()
