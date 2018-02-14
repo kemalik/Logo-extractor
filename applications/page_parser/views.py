@@ -2,6 +2,7 @@ import logging
 
 from django.views.generic import TemplateView
 
+from applications.page_parser.constants import ERROR_MESSAGE_ENTER_URL
 from applications.page_parser.exceptions import LogoExtractorException
 from applications.page_parser.utils import LogoExtractor
 
@@ -17,17 +18,15 @@ class ResultView(TemplateView):
         url = self.request.GET.get('url')
 
         if not url:
-            context['error'] = 'Please enter url'
+            context['error'] = ERROR_MESSAGE_ENTER_URL
             return context
 
         logo_extractor = LogoExtractor(url)
 
         try:
-            result = logo_extractor.get_site_logo()
+            context['result'] = logo_extractor.get_site_logo()
         except LogoExtractorException as e:
             logging.error(e)
             context['error'] = e
-            return context
 
-        context['result'] = result
         return context

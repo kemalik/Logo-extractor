@@ -1,0 +1,1 @@
+ERROR_MESSAGE_ENTER_URL = 'Please enter url'
