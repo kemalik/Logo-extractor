@@ -10,6 +10,7 @@ from applications.page_parser.constants import (
     REGEX_PATTERN_SUBSTRING_FROM_QUOTES, CSS_PROPERTY_BACKGROUND_IMAGE
 )
 from applications.page_parser.exceptions import BrowserClientException, LogoExtractorException
+from applications.page_parser.pipelines import point_pipeline
 
 logger = logging.getLogger(__file__)
 
@@ -18,9 +19,16 @@ class HtmlTag(object):
     def __init__(self, tag, is_image=False):
         self.is_image = is_image
         self.tag = tag
+        self._point = 1
 
     def _get_my_css_value(self, property_name):
         return self.tag.value_of_css_property(property_name)
+
+    def get_point(self):
+        return self._point
+
+    def add_point(self, point):
+        self._point += point
 
     def _parse_url(self, text):
         found = re.findall(REGEX_PATTERN_SUBSTRING_FROM_QUOTES, text)
@@ -30,7 +38,7 @@ class HtmlTag(object):
 
     def get_image_url(self):
         if self.is_image:
-            return ''
+            return self.tag.get_attribute('src')
 
         css_value = self._get_my_css_value(CSS_PROPERTY_BACKGROUND_IMAGE)
 
@@ -38,7 +46,7 @@ class HtmlTag(object):
 
 
 class BrowserClient(object):
-    def __init__(self):
+    def __init__(self, url):
         try:
             self.browser = webdriver.Remote(
                 command_executor=settings.SELENIUM_URL,
@@ -47,18 +55,18 @@ class BrowserClient(object):
             )
         except Exception as e:
             raise BrowserClientException('Unable init webdriver {}'.format(e))
+        self.url = url
+        self.open_url()
 
-    def open_url(self, url):
+    def open_url(self):
         try:
-            self.browser.get(url=url)
+            self.browser.get(url=self.url)
         except Exception as e:
             raise BrowserClientException(
                 'Unable to open url {url}, {exception}'.format(url=url, exception=e)
             )
 
-    def get_url_source(self, url):
-        self.open_url(url)
-
+    def get_url_source(self):
         return self.browser.page_source
 
     def get_elements_by_xpath(self, xpath):
@@ -84,7 +92,7 @@ class BrowserClient(object):
 
         return image_containers
 
-    def get_potential_logos(self):
+    def get_potential_tags(self):
         return self.get_images_in_page() + self.get_image_containers()
 
     def __del__(self):
@@ -95,18 +103,27 @@ class LogoExtractor(object):
     def __init__(self, url):
         self.url = url
 
-    def get_site_logo(self):
-        browser_client = BrowserClient()
+    def _give_points_for_tag(self, tag):
+        for checker in point_pipeline:
+            tag = checker(tag)
+
+        return tag
+
+    def _try_extract(self):
+        browser_client = BrowserClient(self.url)
         logging.debug('Browser client initialized')
 
-        browser_client.open_url(self.url)
-        for i in browser_client.get_potential_logos():
-            print(i.get_image_url())
-
         try:
-            result = browser_client.get_url_source(self.url)
+            result = browser_client.get_potential_tags()
         except BrowserClientException as e:
             logging.error(e)
-            raise LogoExtractorException
+            raise LogoExtractorException(e)
 
-        return result
+        for tag in result:
+            logo = self._give_points_for_tag(tag)
+            print(logo.get_point())
+
+        return ''
+
+    def get_site_logo(self):
+        return self._try_extract()
