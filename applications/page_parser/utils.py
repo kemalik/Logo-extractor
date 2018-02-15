@@ -1,19 +1,21 @@
 import logging
+import re
 
 from django.conf import settings
 from selenium import webdriver
 from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
 
-from applications.page_parser.constants import XPATH_NOT_SCRIPT_STYLE_IMG, XPATH_ALL_IMAGES
+from applications.page_parser.constants import (
+    XPATH_NOT_SCRIPT_STYLE_IMG, XPATH_ALL_IMAGES,
+    REGEX_PATTERN_SUBSTRING_FROM_QUOTES, CSS_PROPERTY_BACKGROUND_IMAGE
+)
 from applications.page_parser.exceptions import BrowserClientException, LogoExtractorException
-import re
 
-CSS_PROPERTY_BACKGROUND_IMAGE = 'background-image'
 logger = logging.getLogger(__file__)
 
 
 class HtmlTag(object):
-    def __init__(self, tag, is_image):
+    def __init__(self, tag, is_image=False):
         self.is_image = is_image
         self.tag = tag
 
@@ -21,7 +23,7 @@ class HtmlTag(object):
         return self.tag.value_of_css_property(property_name)
 
     def _parse_url(self, text):
-        found = re.findall('url\("([^"]*)"', text)
+        found = re.findall(REGEX_PATTERN_SUBSTRING_FROM_QUOTES, text)
         if found:
             return found[0]
         return None
@@ -63,28 +65,24 @@ class BrowserClient(object):
         return self.browser.find_elements_by_xpath(xpath)
 
     def get_images_in_page(self):
-        images_in_page = []
         images = self.get_elements_by_xpath(XPATH_ALL_IMAGES)
-        for image in images:
-            images_in_page.append(
-                HtmlTag(tag=image, is_image=True)
-            )
+
+        images_in_page = [HtmlTag(tag=image, is_image=True) for image in images]
 
         return images_in_page
 
+    def _has_tag_background_style(self, element):
+        element_style = element.value_of_css_property(CSS_PROPERTY_BACKGROUND_IMAGE)
+        return element_style != 'none'
+
     def get_image_containers(self):
-        image_containers_in_page = []
-        elements = self.get_elements_by_xpath(XPATH_NOT_SCRIPT_STYLE_IMG)
+        not_image_tags = self.get_elements_by_xpath(XPATH_NOT_SCRIPT_STYLE_IMG)
 
-        for element in elements:
-            element_style = element.value_of_css_property(CSS_PROPERTY_BACKGROUND_IMAGE)
-            if element_style != 'none':
-                image_container_tag = HtmlTag(element, False)
+        elements_with_bg_style = filter(self._has_tag_background_style, not_image_tags)
 
-                image_containers_in_page.append(
-                    image_container_tag
-                )
-        return image_containers_in_page
+        image_containers = [HtmlTag(tag=tag) for tag in elements_with_bg_style]
+
+        return image_containers
 
     def get_potential_logos(self):
         return self.get_images_in_page() + self.get_image_containers()
