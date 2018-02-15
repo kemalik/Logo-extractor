@@ -4,6 +4,7 @@ from django.conf import settings
 from selenium import webdriver
 from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
 
+from applications.page_parser.constants import XPATH_NOT_SCRIPT_STYLE_IMG, XPATH_ALL_IMAGES
 from applications.page_parser.exceptions import BrowserClientException, LogoExtractorException
 
 logger = logging.getLogger(__file__)
@@ -44,7 +45,7 @@ class BrowserClient(object):
 
     def get_images_in_page(self):
         images_in_page = []
-        images = self.get_elements_by_xpath('//body//img')
+        images = self.get_elements_by_xpath(XPATH_ALL_IMAGES)
         for image in images:
             images_in_page.append(
                 HtmlTag(tag=image, is_image=True)
@@ -54,7 +55,7 @@ class BrowserClient(object):
 
     def get_image_containers(self):
         image_containers_in_page = []
-        elements = self.get_elements_by_xpath('//body//*[not(script|style|img)]')
+        elements = self.get_elements_by_xpath(XPATH_NOT_SCRIPT_STYLE_IMG)
 
         for element in elements:
             element_style = element.value_of_css_property('background-image')
