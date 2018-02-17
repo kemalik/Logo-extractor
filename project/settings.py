@@ -120,6 +120,7 @@ STATIC_URL = '/static/'
 
 SELENIUM_URL = os.environ['SELENIUM_URL']
 
+LOG_LEVEL = os.environ.get('LOG_LEVEL', 'INFO')
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
@@ -133,7 +134,7 @@ LOGGING = {
     },
     'handlers': {
         'console': {
-            'level': 'INFO',
+            'level': LOG_LEVEL,
             'class': 'logging.StreamHandler',
             'formatter': 'simple'
         },
@@ -152,17 +153,17 @@ LOGGING = {
         },
         'django': {
             'handlers': ['file', 'console'],
-            'level': 'INFO',
+            'level': LOG_LEVEL,
             'propagate': True,
         },
         'django.request': {
             'handlers': ['file', 'console'],
-            'level': 'INFO',
+            'level': LOG_LEVEL,
             'propagate': True,
         },
         'django.server': {
             'handlers': ['file', 'console'],
-            'level': 'INFO',
+            'level': LOG_LEVEL,
             'propagate': True,
         }
     }
