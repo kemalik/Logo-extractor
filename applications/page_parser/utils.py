@@ -10,7 +10,8 @@ from applications.page_parser.constants import (
     REGEX_PATTERN_SUBSTRING_FROM_QUOTES, CSS_PROPERTY_BACKGROUND_IMAGE
 )
 from applications.page_parser.exceptions import BrowserClientException, LogoExtractorException
-from applications.page_parser.pipelines import point_pipeline
+
+# from applications.page_parser.pipelines import point_pipeline
 
 logger = logging.getLogger(__file__)
 
@@ -28,7 +29,12 @@ class HtmlTag(object):
     def exclude(self):
         self._excluded = True
 
+    def is_excluded(self):
+        return self._excluded
+
     def get_point(self):
+        if self._excluded:
+            return 0
         return self._point
 
     def add_point(self, point):
@@ -117,27 +123,30 @@ class LogoExtractor(object):
     def __init__(self, url):
         self.url = url
 
-    def _give_points_for_tag(self, tag):
+    def _give_points_for_tag(self, tag: HtmlTag) -> HtmlTag:
+        from applications.page_parser.pipelines import point_pipeline
         for checker in point_pipeline:
             tag = checker(tag)
-
+            if tag.is_excluded():
+                break
         return tag
+
+    def _get_max_pointed_image(self, pointed_tags: list):
+        return max(pointed_tags, key=lambda item: item.get_point())
 
     def _try_extract(self):
 
         try:
             browser_client = BrowserClient(self.url)
-            logging.debug('Browser client initialized')
+            logging.info('Browser client initialized')
             result = browser_client.get_potential_tags()
         except BrowserClientException as e:
             logging.error(e)
             raise LogoExtractorException(e)
+        pointed_tags = list(map(self._give_points_for_tag, result))
 
-        for tag in result:
-            logo = self._give_points_for_tag(tag)
-            print(logo.get_point(), logo.get_image_url())
-
-        return ''
+        tag = self._get_max_pointed_image(pointed_tags)
+        return tag.get_image_url()
 
     def get_site_logo(self):
         return self._try_extract()

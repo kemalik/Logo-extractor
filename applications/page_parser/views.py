@@ -20,7 +20,7 @@ class ResultView(TemplateView):
         if not url:
             context['error'] = ERROR_MESSAGE_ENTER_URL
             return context
-
+        logging.info('Got url: {}'.format(url))
         logo_extractor = LogoExtractor(url)
 
         try:
