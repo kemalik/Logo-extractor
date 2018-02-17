@@ -44,6 +44,16 @@ class HtmlTag(object):
 
         return self._parse_url(css_value)
 
+    def is_visible(self):
+        return self.tag.is_displayed()
+
+    def get_parent_tag(self):
+        parent_tag = self.tag.find_element_by_xpath('..')
+        return HtmlTag(parent_tag)
+
+    def get_attribute_value(self, attribute):
+        return self.tag.get_attribute(attribute)
+
 
 class BrowserClient(object):
     def __init__(self, url):
@@ -56,14 +66,14 @@ class BrowserClient(object):
         except Exception as e:
             raise BrowserClientException('Unable init webdriver {}'.format(e))
         self.url = url
-        self.open_url()
+        self._open_url()
 
-    def open_url(self):
+    def _open_url(self):
         try:
             self.browser.get(url=self.url)
         except Exception as e:
             raise BrowserClientException(
-                'Unable to open url {url}, {exception}'.format(url=url, exception=e)
+                'Unable to open url {url}, {exception}'.format(url=self.url, exception=e)
             )
 
     def get_url_source(self):
@@ -110,10 +120,10 @@ class LogoExtractor(object):
         return tag
 
     def _try_extract(self):
-        browser_client = BrowserClient(self.url)
-        logging.debug('Browser client initialized')
 
         try:
+            browser_client = BrowserClient(self.url)
+            logging.debug('Browser client initialized')
             result = browser_client.get_potential_tags()
         except BrowserClientException as e:
             logging.error(e)
@@ -121,7 +131,7 @@ class LogoExtractor(object):
 
         for tag in result:
             logo = self._give_points_for_tag(tag)
-            print(logo.get_point())
+            print(logo.get_point(), logo.get_image_url())
 
         return ''
 

@@ -4,7 +4,14 @@ def check_tag(tag):
 
 
 def check_attribute(tag):  # has attributes (class, id ...) keywords
-    tag.add_point(1)
+    important_attributes = ['id', 'class', 'alt']
+    for attr in important_attributes:
+        attribute_value = tag.get_attribute_value(attr)
+        if not attribute_value:
+            continue
+        keywords = ['logo', 'ico']
+        if any(word in attribute_value for word in keywords):
+            tag.add_point(5)
     return tag
 
 
@@ -54,7 +61,8 @@ def check_element_parent(tag):  # is element in header, footer ...
 
 
 def check_element_visibility(tag):  # is element visible ...
-    tag.add_point(1)
+    if tag.is_visible():
+        tag.add_point(2)
     return tag
 
 
