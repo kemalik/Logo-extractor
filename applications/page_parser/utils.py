@@ -20,9 +20,13 @@ class HtmlTag(object):
         self.is_image = is_image
         self.tag = tag
         self._point = 1
+        self._excluded = False
 
     def _get_my_css_value(self, property_name):
         return self.tag.value_of_css_property(property_name)
+
+    def exclude(self):
+        self._excluded = True
 
     def get_point(self):
         return self._point

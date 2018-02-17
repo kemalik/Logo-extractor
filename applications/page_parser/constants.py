@@ -6,3 +6,6 @@ XPATH_ALL_IMAGES = '//body//img'
 REGEX_PATTERN_SUBSTRING_FROM_QUOTES = 'url\("([^"]*)"'
 
 CSS_PROPERTY_BACKGROUND_IMAGE = 'background-image'
+
+IMPORTANT_ATTRIBUTES = ['id', 'class', 'alt']
+LOGO_KEYWORDS = ['logo', 'ico']

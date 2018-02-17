@@ -1,22 +1,35 @@
+from applications.page_parser.constants import IMPORTANT_ATTRIBUTES, LOGO_KEYWORDS
+from applications.page_parser.utils import HtmlTag
+
+
 def check_tag(tag):
     tag.add_point(1)
     return tag
 
 
 def check_attribute(tag):  # has attributes (class, id ...) keywords
-    important_attributes = ['id', 'class', 'alt']
-    for attr in important_attributes:
+    for attr in IMPORTANT_ATTRIBUTES:
         attribute_value = tag.get_attribute_value(attr)
         if not attribute_value:
             continue
-        keywords = ['logo', 'ico']
-        if any(word in attribute_value for word in keywords):
+        if any(word in attribute_value for word in LOGO_KEYWORDS):
             tag.add_point(5)
     return tag
 
 
-def check_image_url(tag):  # has image url keywords
-    tag.add_point(1)
+def check_image_url_name(tag: HtmlTag) -> HtmlTag:  # has image url path keywords
+    tag_image_url = tag.get_image_url()
+    if any(word in tag_image_url for word in LOGO_KEYWORDS):
+        tag.add_point(5)
+    return tag
+
+
+def check_image_url(tag: HtmlTag) -> HtmlTag:  # has tag image url
+    tag_image = tag.get_image_url()
+    if not tag_image:
+        tag.exclude()
+        return tag
+    tag.add_point(3)
     return tag
 
 
