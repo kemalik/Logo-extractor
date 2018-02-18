@@ -1,5 +1,6 @@
 from applications.page_parser.constants import (
-    IMPORTANT_ATTRIBUTES, LOGO_KEYWORDS, IMPORTANT_URLS, IMPORTANT_TAGS
+    IMPORTANT_ATTRIBUTES, LOGO_KEYWORDS, IMPORTANT_URLS, IMPORTANT_TAGS,
+    IMPORTANT_FILE_EXTENSIONS
 )
 from applications.page_parser.utils import HtmlTag
 
@@ -35,8 +36,9 @@ def check_image_url(tag: HtmlTag) -> HtmlTag:  # has tag image url
     return tag
 
 
-def check_image_extension(tag):  # has image extension png, jpg, ...
-    tag.add_point(1)
+def check_image_extension(tag: HtmlTag) -> HtmlTag:  # has image extension png, jpg, ...
+    if any(tag.get_image_url().endswith(extension) for extension in IMPORTANT_FILE_EXTENSIONS):
+        tag.add_point(2)
     return tag
 
 
@@ -72,7 +74,7 @@ def check_element_placement(tag: HtmlTag) -> HtmlTag:  # is element in header, f
 def check_element_coordinates(tag: HtmlTag) -> HtmlTag:  # check element location in page by x, y
     coordinates = tag.get_coordinates()
     x, y = coordinates['x'], coordinates['y']
-    if 0 < x < 200:
+    if 0 < x < 200 and y > 0:
         tag.add_point(5)
     return tag
 

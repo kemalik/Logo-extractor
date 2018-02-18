@@ -10,6 +10,7 @@ CSS_PROPERTY_BACKGROUND_IMAGE = 'background-image'
 IMPORTANT_ATTRIBUTES = ['id', 'class', 'alt']
 IMPORTANT_URLS = ['index', 'index.html', 'main', 'main.html']
 IMPORTANT_TAGS = ['header', 'footer', 'a']
+IMPORTANT_FILE_EXTENSIONS = ['.png', '.jpg', '.svg', '.gif', '.jpeg']
 
 LOGO_KEYWORDS = ['logo', 'ico']
 
