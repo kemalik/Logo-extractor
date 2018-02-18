@@ -56,6 +56,9 @@ class HtmlTag(object):
     def is_visible(self):
         return self._tag.is_displayed()
 
+    def get_coordinates(self) -> dict:
+        return self._tag.location
+
     def get_parent_tag(self):
         parent_tag = self._tag.find_element_by_xpath('..')
         return HtmlTag(parent_tag)

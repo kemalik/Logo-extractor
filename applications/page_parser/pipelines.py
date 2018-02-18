@@ -69,8 +69,11 @@ def check_element_placement(tag: HtmlTag) -> HtmlTag:  # is element in header, f
     return tag
 
 
-def check_element_coordinates(tag):  # check element location in page by x, y
-    tag.add_point(1)
+def check_element_coordinates(tag: HtmlTag) -> HtmlTag:  # check element location in page by x, y
+    coordinates = tag.get_coordinates()
+    x, y = coordinates['x'], coordinates['y']
+    if 0 < x < 200:
+        tag.add_point(5)
     return tag
 
 
@@ -79,7 +82,7 @@ def check_element_parent(tag: HtmlTag) -> HtmlTag:  # is element in header, foot
     while parent_tag.get_tag_name() != 'body':
         if parent_tag.get_tag_name() == 'a':
             tag.add_point(1)
-            if any(url in parent_tag.get_attribute_value('href') for url in IMPORTANT_URLS):
+            if any(parent_tag.get_attribute_value('href').endswith(url) for url in IMPORTANT_URLS):
                 tag.add_point(5)
         parent_tag = parent_tag.get_parent_tag()
     return tag
@@ -101,6 +104,8 @@ point_pipeline = [
     check_style,
     check_inline_style,
     check_element_placement,
+    check_element_coordinates,
     check_element_parent,
-    check_element_visibility
+    check_element_visibility,
+
 ]
