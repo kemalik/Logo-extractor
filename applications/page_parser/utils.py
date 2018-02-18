@@ -56,6 +56,9 @@ class HtmlTag(object):
     def is_visible(self):
         return self._tag.is_displayed()
 
+    def get_size(self):
+        return self._tag.size
+
     def get_coordinates(self) -> dict:
         return self._tag.location
 
@@ -63,7 +66,7 @@ class HtmlTag(object):
         parent_tag = self._tag.find_element_by_xpath('..')
         return HtmlTag(parent_tag)
 
-    def get_tag_name(self):
+    def get_name(self):
         return self._tag.tag_name
 
     def get_attribute_value(self, attribute):
@@ -134,7 +137,7 @@ class LogoExtractor(object):
             tag = checker(tag)
             if tag.is_excluded():
                 break
-        logging.debug('Image url: {} pointed: {}'.format(tag.get_image_url(), tag.get_point()))
+        logging.info('Image url: {} pointed: {}'.format(tag.get_image_url(), tag.get_point()))
         return tag
 
     def _get_max_pointed_image(self, pointed_tags: list):

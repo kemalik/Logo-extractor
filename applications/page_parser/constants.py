@@ -14,3 +14,6 @@ IMPORTANT_FILE_EXTENSIONS = ['.png', '.jpg', '.svg', '.gif', '.jpeg']
 
 LOGO_KEYWORDS = ['logo', 'ico']
 
+PRIORITY_HIGH = 3
+PRIORITY_MEDIUM = 2
+PRIORITY_LOW = 1
