@@ -1,4 +1,4 @@
-from applications.page_parser.constants import IMPORTANT_ATTRIBUTES, LOGO_KEYWORDS
+from applications.page_parser.constants import IMPORTANT_ATTRIBUTES, LOGO_KEYWORDS, IMPORTANT_URLS
 from applications.page_parser.utils import HtmlTag
 
 
@@ -68,8 +68,14 @@ def check_element_coordinates(tag):  # check element location in page by x, y
     return tag
 
 
-def check_element_parent(tag):  # is element in header, footer ...
-    tag.add_point(1)
+def check_element_parent(tag: HtmlTag) -> HtmlTag:  # is element in header, footer ...
+    parent_tag = tag.get_parent_tag()
+    while parent_tag.get_tag_name() != 'body':
+        if parent_tag.get_tag_name() == 'a':
+            tag.add_point(1)
+            if any(url in parent_tag.get_attribute_value('href') for url in IMPORTANT_URLS):
+                tag.add_point(5)
+        parent_tag = parent_tag.get_parent_tag()
     return tag
 
 

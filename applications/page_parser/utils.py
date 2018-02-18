@@ -11,20 +11,18 @@ from applications.page_parser.constants import (
 )
 from applications.page_parser.exceptions import BrowserClientException, LogoExtractorException
 
-# from applications.page_parser.pipelines import point_pipeline
-
 logger = logging.getLogger(__file__)
 
 
 class HtmlTag(object):
     def __init__(self, tag, is_image=False):
         self.is_image = is_image
-        self.tag = tag
+        self._tag = tag
         self._point = 1
         self._excluded = False
 
     def _get_my_css_value(self, property_name):
-        return self.tag.value_of_css_property(property_name)
+        return self._tag.value_of_css_property(property_name)
 
     def exclude(self):
         self._excluded = True
@@ -44,25 +42,29 @@ class HtmlTag(object):
         found = re.findall(REGEX_PATTERN_SUBSTRING_FROM_QUOTES, text)
         if found:
             return found[0]
+        logging.WARNING('Style {} no have url'.format(text))
         return None
 
     def get_image_url(self):
         if self.is_image:
-            return self.tag.get_attribute('src')
+            return self._tag.get_attribute('src')
 
         css_value = self._get_my_css_value(CSS_PROPERTY_BACKGROUND_IMAGE)
 
         return self._parse_url(css_value)
 
     def is_visible(self):
-        return self.tag.is_displayed()
+        return self._tag.is_displayed()
 
     def get_parent_tag(self):
-        parent_tag = self.tag.find_element_by_xpath('..')
+        parent_tag = self._tag.find_element_by_xpath('..')
         return HtmlTag(parent_tag)
 
+    def get_tag_name(self):
+        return self._tag.tag_name
+
     def get_attribute_value(self, attribute):
-        return self.tag.get_attribute(attribute)
+        return self._tag.get_attribute(attribute)
 
 
 class BrowserClient(object):
@@ -129,6 +131,7 @@ class LogoExtractor(object):
             tag = checker(tag)
             if tag.is_excluded():
                 break
+        logging.debug('Image url: {} pointed: {}'.format(tag.get_image_url(), tag.get_point()))
         return tag
 
     def _get_max_pointed_image(self, pointed_tags: list):
