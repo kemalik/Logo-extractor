@@ -1,4 +1,6 @@
-from applications.page_parser.constants import IMPORTANT_ATTRIBUTES, LOGO_KEYWORDS, IMPORTANT_URLS
+from applications.page_parser.constants import (
+    IMPORTANT_ATTRIBUTES, LOGO_KEYWORDS, IMPORTANT_URLS, IMPORTANT_TAGS
+)
 from applications.page_parser.utils import HtmlTag
 
 
@@ -58,8 +60,12 @@ def check_inline_style(tag):  # has element inline styles
     return tag
 
 
-def check_element_placement(tag):  # is element in top, bottom, ...
-    tag.add_point(1)
+def check_element_placement(tag: HtmlTag) -> HtmlTag:  # is element in header, footer, ...
+    parent_tag = tag.get_parent_tag()
+    while parent_tag.get_tag_name() != 'body':
+        if any(tag_name in parent_tag.get_tag_name() for tag_name in IMPORTANT_TAGS):
+            tag.add_point(2)
+        parent_tag = parent_tag.get_parent_tag()
     return tag
 
 
