@@ -3,12 +3,14 @@ import re
 
 from django.conf import settings
 from selenium import webdriver
+from selenium.common.exceptions import StaleElementReferenceException
 from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
 
 from applications.page_parser.constants import (
-    XPATH_NOT_SCRIPT_STYLE_IMG, XPATH_ALL_IMAGES,
+    XPATH_ALL_IMAGES,
     REGEX_PATTERN_SUBSTRING_FROM_QUOTES, CSS_PROPERTY_BACKGROUND_IMAGE,
-    CSS_PROPERTY_DISPLAY, CSS_PROPERTY_VISIBILITY)
+    CSS_PROPERTY_DISPLAY, CSS_PROPERTY_VISIBILITY, CSS_PROPERTY_VALUE_NONE, CSS_PROPERTY_VALUE_HIDDEN,
+    SCRIPT_APPEND_CLASS_IMAGE_CONTAINERS)
 from applications.page_parser.exceptions import BrowserClientException, LogoExtractorException
 
 logger = logging.getLogger(__file__)
@@ -54,9 +56,9 @@ class HtmlTag(object):
         return self._parse_url(css_value)
 
     def is_visible(self):
-        if self._get_my_css_value(CSS_PROPERTY_DISPLAY) == 'none':
+        if self._get_my_css_value(CSS_PROPERTY_DISPLAY) == CSS_PROPERTY_VALUE_NONE:
             return False
-        if self._get_my_css_value(CSS_PROPERTY_VISIBILITY) == 'hidden':
+        if self._get_my_css_value(CSS_PROPERTY_VISIBILITY) == CSS_PROPERTY_VALUE_HIDDEN:
             return False
         return True
 
@@ -104,6 +106,9 @@ class BrowserClient(object):
     def get_elements_by_xpath(self, xpath):
         return self.browser.find_elements_by_xpath(xpath)
 
+    def get_elements_by_class(self, class_name):
+        return self.browser.find_elements_by_class_name(class_name)
+
     def get_images_in_page(self):
         images = self.get_elements_by_xpath(XPATH_ALL_IMAGES)
 
@@ -111,14 +116,10 @@ class BrowserClient(object):
 
         return images_in_page
 
-    def _has_tag_background_style(self, element):
-        element_style = element.value_of_css_property(CSS_PROPERTY_BACKGROUND_IMAGE)
-        return element_style != 'none'
-
     def get_image_containers(self):
-        not_image_tags = self.get_elements_by_xpath(XPATH_NOT_SCRIPT_STYLE_IMG)
+        self.browser.execute_script(SCRIPT_APPEND_CLASS_IMAGE_CONTAINERS)
 
-        elements_with_bg_style = filter(self._has_tag_background_style, not_image_tags)
+        elements_with_bg_style = self.get_elements_by_class('bg_found')
 
         image_containers = [HtmlTag(tag=tag) for tag in elements_with_bg_style]
 

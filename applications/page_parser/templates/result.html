@@ -5,7 +5,21 @@
     <title>Logo parser</title>
 </head>
 <body>
-{{ result }}
-{{ error }}
+<div class="error">
+    {{ error }}
+</div>
+<div class="result">
+    <div class="url">
+        <b>url:</b> {{ url }}
+    </div>
+    <div class="logo_url">
+        <b>logo url:</b> {{ result }}
+    </div>
+    <div class="image">
+        <b>image:</b>
+        <img style="background-color: black" src="{{ result }}" alt="logo">
+    </div>
+</div>
+
 </body>
 </html>
