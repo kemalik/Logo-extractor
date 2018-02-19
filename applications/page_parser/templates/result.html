@@ -5,9 +5,11 @@
     <title>Logo parser</title>
 </head>
 <body>
+{% if error %}
 <div class="error">
-    {{ error }}
+    <b>error:</b> {{ error }}
 </div>
+{% endif %}
 <div class="result">
     <div class="url">
         <b>url:</b> {{ url }}
@@ -17,7 +19,7 @@
     </div>
     <div class="image">
         <b>image:</b>
-        <img style="background-color: black" src="{{ result }}" alt="logo">
+        <img src="{{ result }}" alt="logo">
     </div>
 </div>
 

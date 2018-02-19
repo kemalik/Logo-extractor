@@ -21,11 +21,7 @@ services:
   db:
     image: mysql
     restart: always
-    environment:
-      MYSQL_ROOT_PASSWORD: root
-      MYSQL_USER: logo
-      MYSQL_PASSWORD: logo
-      MYSQL_DATABASE: logo
+    env_file: .env
 
   web:
     build: .
