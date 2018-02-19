@@ -27,6 +27,7 @@ PRIORITY_LOW = 1
 
 CONTEXT_RESULT_KEY = 'result'
 CONTEXT_ERROR_KEY = 'error'
+
 SCRIPT_APPEND_CLASS_IMAGE_CONTAINERS = """
         var tags = document.getElementsByTagName('*'), el;
         for (var i = 0, len = tags.length; i < len; i++) {
@@ -35,3 +36,20 @@ SCRIPT_APPEND_CLASS_IMAGE_CONTAINERS = """
                 el.className += ' bg_found';
         }
         """
+SIZE_KEY_HEIGHT = 'height'
+SIZE_KEY_WIDTH = 'width'
+
+ATTRIBUTE_NAME_HREF = 'href'
+
+TAG_NAME_BODY = 'body'
+
+COORDINATE_X_MIN = 0
+COORDINATE_Y_MAX = 200
+COORDINATE_Y_MIN = 0
+COORDINATE_Y = 'y'
+COORDINATE_X = 'x'
+
+LOGO_MIN_HEIGHT = 0
+LOGO_MIN_WIDTH = 0
+LOGO_MAX_WIDTH = 600
+LOGO_MAX_HEIGHT = 600
