@@ -7,8 +7,8 @@ from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
 
 from applications.page_parser.constants import (
     XPATH_NOT_SCRIPT_STYLE_IMG, XPATH_ALL_IMAGES,
-    REGEX_PATTERN_SUBSTRING_FROM_QUOTES, CSS_PROPERTY_BACKGROUND_IMAGE
-)
+    REGEX_PATTERN_SUBSTRING_FROM_QUOTES, CSS_PROPERTY_BACKGROUND_IMAGE,
+    CSS_PROPERTY_DISPLAY, CSS_PROPERTY_VISIBILITY)
 from applications.page_parser.exceptions import BrowserClientException, LogoExtractorException
 
 logger = logging.getLogger(__file__)
@@ -42,7 +42,7 @@ class HtmlTag(object):
         found = re.findall(REGEX_PATTERN_SUBSTRING_FROM_QUOTES, text)
         if found:
             return found[0]
-        logging.WARNING('Style {} no have url'.format(text))
+        logging.warning('Style {} no have url'.format(text))
         return None
 
     def get_image_url(self):
@@ -54,7 +54,11 @@ class HtmlTag(object):
         return self._parse_url(css_value)
 
     def is_visible(self):
-        return self._tag.is_displayed()
+        if self._get_my_css_value(CSS_PROPERTY_DISPLAY) == 'none':
+            return False
+        if self._get_my_css_value(CSS_PROPERTY_VISIBILITY) == 'hidden':
+            return False
+        return True
 
     def get_size(self):
         return self._tag.size
@@ -137,7 +141,7 @@ class LogoExtractor(object):
             tag = checker(tag)
             if tag.is_excluded():
                 break
-        logging.info('Image url: {} pointed: {}'.format(tag.get_image_url(), tag.get_point()))
+        logging.info('Image url: {} pointed: {} '.format(tag.get_image_url(), tag.get_point()))
         return tag
 
     def _get_max_pointed_image(self, pointed_tags: list):
