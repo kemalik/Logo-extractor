@@ -18,6 +18,5 @@ from django.urls import path
 from applications.page_parser.views import ResultView
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
     path('', ResultView.as_view()),
 ]
