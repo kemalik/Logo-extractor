@@ -17,3 +17,25 @@ services:
     environment:
       HUB_PORT_4444_TCP_ADDR: hub
       HUB_PORT_4444_TCP_PORT: 4444
+
+  db:
+    image: mysql
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_USER: logo
+      MYSQL_PASSWORD: logo
+      MYSQL_DATABASE: logo
+
+  web:
+    build: .
+    command: ["./bin/runserver.sh"]
+    container_name: web
+    ports:
+      - "8000:8000"
+    depends_on:
+      - chrome
+      - db
+    env_file: .env
+    links:
+      - selenium-hub
