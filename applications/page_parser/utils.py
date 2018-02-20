@@ -157,10 +157,13 @@ class LogoExtractor(object):
         except BrowserClientException as e:
             logging.error(e)
             raise LogoExtractorException(e)
-        pointed_tags = list(map(self._give_points_for_tag, result))
 
-        tag = self._get_max_pointed_image(pointed_tags)
-        return tag.get_image_url()
+        if result:
+            pointed_tags = list(map(self._give_points_for_tag, result))
+
+            tag = self._get_max_pointed_image(pointed_tags)
+            return tag.get_image_url()
+        return ''
 
     def get_site_logo(self):
         return self._try_extract()
