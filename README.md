@@ -30,4 +30,4 @@ Run the needed Docker images with [docker-compose](https://docs.docker.com/compo
     $ docker-compose up -d 
 Open [http://localhost:8000/?url=http://google.com](http://localhost:8000/?url=http://google.com) in a browser. You should see a extracted logo of [Google](https://google.com).
 
-(result page)[https://s.nimbus.everhelper.me/attachment/1485316/59i0f940wn3p7qmasto4/761474-qMkTc4dAmoheCS0b/screen.png]
+![result page](https://s.nimbus.everhelper.me/attachment/1485316/59i0f940wn3p7qmasto4/761474-qMkTc4dAmoheCS0b/screen.png)
