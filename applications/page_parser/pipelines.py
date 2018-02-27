@@ -9,10 +9,10 @@ def check_attribute(tag: HtmlTag) -> HtmlTag:  # has attributes (class, id ...) 
         if not attribute_value:
             continue
         if any(word in attribute_value for word in LOGO_KEYWORDS):
-            tag.add_point(PRIORITY_HIGH)
+            tag.add_score(PRIORITY_HIGH)
 
         if attr == ATTRIBUTE_NAME_HREF and any(word in attribute_value for word in IMPORTANT_URLS):
-            tag.add_point(PRIORITY_MAJOR)
+            tag.add_score(PRIORITY_MAJOR)
     return tag
 
 
@@ -22,13 +22,13 @@ def check_image_url(tag: HtmlTag) -> HtmlTag:  # has image url path keywords
         tag.exclude()
         return tag
     if any(word in tag_image_url for word in LOGO_KEYWORDS):
-        tag.add_point(PRIORITY_HIGH)
+        tag.add_score(PRIORITY_HIGH)
     return tag
 
 
 def check_image_extension(tag: HtmlTag) -> HtmlTag:  # has image extension png, jpg, ...
     if any(tag.get_image_url().endswith(extension) for extension in IMPORTANT_FILE_EXTENSIONS):
-        tag.add_point(PRIORITY_LOW)
+        tag.add_score(PRIORITY_LOW)
     return tag
 
 
@@ -37,7 +37,7 @@ def check_image_size(tag: HtmlTag) -> HtmlTag:  # has image large, small size
     width, height = tag_size[SIZE_KEY_WIDTH], tag_size[SIZE_KEY_HEIGHT]
 
     if LOGO_MAX_WIDTH > width > LOGO_MIN_WIDTH and LOGO_MAX_HEIGHT > height > LOGO_MIN_HEIGHT:
-        tag.add_point(PRIORITY_MINOR)
+        tag.add_score(PRIORITY_MINOR)
     return tag
 
 
@@ -45,7 +45,7 @@ def check_element_coordinates(tag: HtmlTag) -> HtmlTag:  # check element locatio
     coordinates = tag.get_coordinates()
     x, y = coordinates[COORDINATE_X], coordinates[COORDINATE_Y]
     if COORDINATE_Y_MIN < y < COORDINATE_Y_MAX and x > COORDINATE_X_MIN:
-        tag.add_point(PRIORITY_MEDIUM)
+        tag.add_score(PRIORITY_MEDIUM)
     return tag
 
 
@@ -57,9 +57,9 @@ def check_element_parent(tag: HtmlTag) -> HtmlTag:  # is element in header, foot
             if not attribute_value:
                 continue
             if any(word in attribute_value for word in LOGO_KEYWORDS):
-                tag.add_point(PRIORITY_HIGH)
+                tag.add_score(PRIORITY_HIGH)
             if attr == ATTRIBUTE_NAME_HREF and any(attribute_value.endswith(url) for url in IMPORTANT_URLS):
-                tag.add_point(PRIORITY_HIGH)
+                tag.add_score(PRIORITY_HIGH)
 
         parent_tag = parent_tag.get_parent_tag()
     return tag
@@ -67,11 +67,11 @@ def check_element_parent(tag: HtmlTag) -> HtmlTag:  # is element in header, foot
 
 def check_element_visibility(tag: HtmlTag) -> HtmlTag:  # is element visible ...
     if tag.is_visible():
-        tag.add_point(PRIORITY_MEDIUM)
+        tag.add_score(PRIORITY_MEDIUM)
     return tag
 
 
-point_pipeline = [
+scoring_pipeline = [
     check_image_url,
     check_attribute,
     check_image_extension,

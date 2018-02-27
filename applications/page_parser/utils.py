@@ -20,7 +20,7 @@ class HtmlTag(object):
     def __init__(self, tag, is_image=False):
         self.is_image = is_image
         self._tag = tag
-        self._point = 1
+        self._score = 1
         self._excluded = False
 
     def _get_my_css_value(self, property_name):
@@ -32,13 +32,13 @@ class HtmlTag(object):
     def is_excluded(self):
         return self._excluded
 
-    def get_point(self):
+    def get_score(self):
         if self._excluded:
             return 0
-        return self._point
+        return self._score
 
-    def add_point(self, point):
-        self._point += point
+    def add_score(self, score):
+        self._score += score
 
     def _parse_url(self, text):
         found = re.findall(REGEX_PATTERN_SUBSTRING_FROM_QUOTES, text)
@@ -136,17 +136,17 @@ class LogoExtractor(object):
     def __init__(self, url):
         self.url = url
 
-    def _give_points_for_tag(self, tag: HtmlTag) -> HtmlTag:
-        from applications.page_parser.pipelines import point_pipeline
-        for checker in point_pipeline:
+    def _give_score_for_tag(self, tag: HtmlTag) -> HtmlTag:
+        from applications.page_parser.pipelines import scoring_pipeline
+        for checker in scoring_pipeline:
             tag = checker(tag)
             if tag.is_excluded():
                 break
-        logging.info('Image url: {} pointed: {} '.format(tag.get_image_url(), tag.get_point()))
+        logging.info('Image url: {} score: {} '.format(tag.get_image_url(), tag.get_score()))
         return tag
 
-    def _get_max_pointed_image(self, pointed_tags: list):
-        return max(pointed_tags, key=lambda item: item.get_point())
+    def _get_max_scored_image(self, scored_tags: list):
+        return max(scored_tags, key=lambda item: item.get_score())
 
     def _try_extract(self):
 
@@ -159,9 +159,9 @@ class LogoExtractor(object):
             raise LogoExtractorException(e)
 
         if result:
-            pointed_tags = list(map(self._give_points_for_tag, result))
+            scored_tags = list(map(self._give_score_for_tag, result))
 
-            tag = self._get_max_pointed_image(pointed_tags)
+            tag = self._get_max_scored_image(scored_tags)
             return tag.get_image_url()
         return ''
 

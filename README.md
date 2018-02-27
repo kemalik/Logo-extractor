@@ -11,7 +11,7 @@ Next, clone this repo:
 
 ## Configure the project
 
-Project settings live in `.env`. It contains sensitive data, so it's excluded in `.gitignore` and `.dockerignore`. Copy .env.sample to .env:
+Project settings live in `.env`. It contains sensitive data, so it's excluded in `.gitignore` and `.dockerignore`. Copy `.env.sample` to `.env`:
 
     $ cp .env.sample .env
 
