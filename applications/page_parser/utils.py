@@ -3,14 +3,13 @@ import re
 
 from django.conf import settings
 from selenium import webdriver
-from selenium.common.exceptions import StaleElementReferenceException
 from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
 
 from applications.page_parser.constants import (
     XPATH_ALL_IMAGES,
     REGEX_PATTERN_SUBSTRING_FROM_QUOTES, CSS_PROPERTY_BACKGROUND_IMAGE,
     CSS_PROPERTY_DISPLAY, CSS_PROPERTY_VISIBILITY, CSS_PROPERTY_VALUE_NONE, CSS_PROPERTY_VALUE_HIDDEN,
-    SCRIPT_APPEND_CLASS_IMAGE_CONTAINERS)
+    SCRIPT_APPEND_CLASS_IMAGE_CONTAINERS, ATTRIBUTE_NAME_SRC, XPATH_PARENT_ELEMENT, CLASS_NAME_BG_ELEMENT)
 from applications.page_parser.exceptions import BrowserClientException, LogoExtractorException
 
 logger = logging.getLogger(__file__)
@@ -49,7 +48,7 @@ class HtmlTag(object):
 
     def get_image_url(self):
         if self.is_image:
-            return self._tag.get_attribute('src')
+            return self._tag.get_attribute(ATTRIBUTE_NAME_SRC)
 
         css_value = self._get_my_css_value(CSS_PROPERTY_BACKGROUND_IMAGE)
 
@@ -69,7 +68,7 @@ class HtmlTag(object):
         return self._tag.location
 
     def get_parent_tag(self):
-        parent_tag = self._tag.find_element_by_xpath('..')
+        parent_tag = self._tag.find_element_by_xpath(XPATH_PARENT_ELEMENT)
         return HtmlTag(parent_tag)
 
     def get_name(self):
@@ -119,7 +118,7 @@ class BrowserClient(object):
     def get_image_containers(self):
         self.browser.execute_script(SCRIPT_APPEND_CLASS_IMAGE_CONTAINERS)
 
-        elements_with_bg_style = self.get_elements_by_class('bg_found')
+        elements_with_bg_style = self.get_elements_by_class(CLASS_NAME_BG_ELEMENT)
 
         image_containers = [HtmlTag(tag=tag) for tag in elements_with_bg_style]
 
@@ -148,8 +147,7 @@ class LogoExtractor(object):
     def _get_max_scored_image(self, scored_tags: list):
         return max(scored_tags, key=lambda item: item.get_score())
 
-    def _try_extract(self):
-
+    def get_site_logo(self):
         try:
             browser_client = BrowserClient(self.url)
             logging.info('Browser client initialized')
@@ -164,6 +162,3 @@ class LogoExtractor(object):
             tag = self._get_max_scored_image(scored_tags)
             return tag.get_image_url()
         return ''
-
-    def get_site_logo(self):
-        return self._try_extract()

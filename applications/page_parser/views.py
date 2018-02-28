@@ -3,10 +3,11 @@ import logging
 from django.views.generic import TemplateView
 
 from applications.page_parser.constants import (
-    ERROR_MESSAGE_ENTER_URL, CONTEXT_RESULT_KEY, CONTEXT_ERROR_KEY
-)
+    ERROR_MESSAGE_ENTER_URL, CONTEXT_RESULT_KEY, CONTEXT_ERROR_KEY,
+    CONTEXT_URL_KEY)
 from applications.page_parser.exceptions import LogoExtractorException
 from applications.page_parser.utils import LogoExtractor
+
 
 logger = logging.getLogger(__file__)
 
@@ -23,6 +24,7 @@ class ResultView(TemplateView):
         if not url:
             context[CONTEXT_ERROR_KEY] = ERROR_MESSAGE_ENTER_URL
             return context
+
         logging.info('Got url: {}'.format(url))
         logo_extractor = LogoExtractor(url)
 
@@ -31,5 +33,6 @@ class ResultView(TemplateView):
         except LogoExtractorException as e:
             logging.error(e)
             context[CONTEXT_ERROR_KEY] = e
-        context['url'] = url
+
+        context[CONTEXT_URL_KEY] = url
         return context
