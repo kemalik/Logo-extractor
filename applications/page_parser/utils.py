@@ -80,6 +80,7 @@ class HtmlTag(object):
 
 class BrowserClient(object):
     def __init__(self, url):
+        self.browser = None
         try:
             self.browser = webdriver.Remote(
                 command_executor=settings.SELENIUM_URL,
@@ -128,7 +129,8 @@ class BrowserClient(object):
         return self.get_images_in_page() + self.get_image_containers()
 
     def __del__(self):
-        self.browser.quit()
+        if self.browser:
+            self.browser.quit()
 
 
 class LogoExtractor(object):

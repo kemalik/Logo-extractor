@@ -1,11 +1,12 @@
-from unittest.mock import Mock
 
 from django.test import TestCase
+from unittest.mock import Mock, patch
 
 from applications.page_parser.constants import (
     CSS_PROPERTY_VALUE_NONE, CSS_PROPERTY_VALUE_HIDDEN, COORDINATE_Y, COORDINATE_X,
     ATTRIBUTE_NAME_SRC, TAG_NAME_BODY, PRIORITY_HIGH)
-from .utils import HtmlTag
+from applications.page_parser.exceptions import BrowserClientException
+from applications.page_parser.utils import BrowserClient, HtmlTag
 
 
 class HtmlTagTestCase(TestCase):
@@ -102,3 +103,51 @@ class HtmlTagTestCase(TestCase):
         self.mocked_tag.get_attribute.return_value = expected_attribute_value
 
         self.assertEqual(self.html_tag.get_attribute_value(ATTRIBUTE_NAME_SRC), expected_attribute_value)
+
+
+class BrowserClientTestCase(TestCase):
+
+    @patch('selenium.webdriver.Remote')
+    def setUp(self, driver):
+        self.driver = driver
+        self.test_url = 'htpp://google.com'
+        self.browser_client = BrowserClient(url=self.test_url)
+        self.browser_client.browser = self.driver
+
+    @patch('selenium.webdriver.Remote')
+    def test_constructor_should_raise_exception_if_cant_connect_to_selenium(self, driver):
+        driver.side_effect = Exception
+
+        self.assertRaises(BrowserClientException, lambda: BrowserClient(''))
+
+    def test_get_url_source_should_return_page_source(self):
+        expected_page_source = 'page source'
+        self.driver.page_source = expected_page_source
+        self.assertEqual(self.browser_client.get_url_source(), expected_page_source)
+
+
+    def test_get_elements_by_xpath_should_return_list_elements_found_in_page_by_xpath(self):
+        expected_elements = []
+        self.driver.find_elements_by_xpath.return_value = expected_elements
+        self.assertEqual(self.browser_client.get_elements_by_xpath(''), expected_elements)
+
+    def test_get_elements_by_xpath_should_return_list_elements_found_by_class_name(self):
+        expected_elements = []
+        self.driver.find_elements_by_class_name.return_value = expected_elements
+        self.assertEqual(self.browser_client.get_elements_by_class(''), expected_elements)
+
+    def test_get_images_in_page_should_return_list_image_elements(self):
+        expected_elements = []
+        self.driver.find_elements_by_xpath.return_value = expected_elements
+        self.assertEqual(self.browser_client.get_images_in_page(), expected_elements)
+
+    def test_get_image_containers_should_return_list_elements_which_contains_image(self):
+        expected_elements = []
+        self.driver.find_elements_by_class_name.return_value = expected_elements
+        self.assertEqual(self.browser_client.get_image_containers(), expected_elements)
+
+    def test_get_potential_tags_should_return_list_elements_which_exactly_contains_image(self):
+        expected_elements = []
+        self.driver.find_elements_by_class_name.return_value = expected_elements
+        self.driver.find_elements_by_xpath.return_value = expected_elements
+        self.assertEqual(self.browser_client.get_potential_tags(), expected_elements)
