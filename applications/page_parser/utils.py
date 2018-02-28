@@ -17,7 +17,7 @@ logger = logging.getLogger(__file__)
 
 class HtmlTag(object):
     def __init__(self, tag, is_image=False):
-        self.is_image = is_image
+        self._is_image = is_image
         self._tag = tag
         self._score = 1
         self._excluded = False
@@ -47,7 +47,7 @@ class HtmlTag(object):
         return None
 
     def get_image_url(self):
-        if self.is_image:
+        if self._is_image:
             return self._tag.get_attribute(ATTRIBUTE_NAME_SRC)
 
         css_value = self._get_my_css_value(CSS_PROPERTY_BACKGROUND_IMAGE)
