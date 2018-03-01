@@ -1,12 +1,12 @@
+from unittest.mock import Mock, patch
 
 from django.test import TestCase
-from unittest.mock import Mock, patch
 
 from applications.page_parser.constants import (
     CSS_PROPERTY_VALUE_NONE, CSS_PROPERTY_VALUE_HIDDEN, COORDINATE_Y, COORDINATE_X,
     ATTRIBUTE_NAME_SRC, TAG_NAME_BODY, PRIORITY_HIGH)
 from applications.page_parser.exceptions import BrowserClientException
-from applications.page_parser.utils import BrowserClient, HtmlTag
+from applications.page_parser.utils import BrowserClient, HtmlTag, LogoExtractor
 
 
 class HtmlTagTestCase(TestCase):
@@ -106,7 +106,6 @@ class HtmlTagTestCase(TestCase):
 
 
 class BrowserClientTestCase(TestCase):
-
     @patch('selenium.webdriver.Remote')
     def setUp(self, driver):
         self.driver = driver
@@ -124,7 +123,6 @@ class BrowserClientTestCase(TestCase):
         expected_page_source = 'page source'
         self.driver.page_source = expected_page_source
         self.assertEqual(self.browser_client.get_url_source(), expected_page_source)
-
 
     def test_get_elements_by_xpath_should_return_list_elements_found_in_page_by_xpath(self):
         expected_elements = []
@@ -151,3 +149,36 @@ class BrowserClientTestCase(TestCase):
         self.driver.find_elements_by_class_name.return_value = expected_elements
         self.driver.find_elements_by_xpath.return_value = expected_elements
         self.assertEqual(self.browser_client.get_potential_tags(), expected_elements)
+
+
+class LogoExtractorTestCase(TestCase):
+    def setUp(self):
+        self.test_url = 'http://google.com'
+        self.test_image_url = 'http://example.com/img.png'
+        self.logo_extractor = LogoExtractor(self.test_url)
+
+    @patch('applications.page_parser.utils.BrowserClient')
+    @patch('applications.page_parser.pipelines.scoring_pipeline')
+    def test_get_site_logo_should_return_logo_of_given_url(self, scoring_pipeline, browser_client):
+        expected_image_url = self.test_image_url
+
+        scoring_pipeline.__iter__.return_value = [lambda x: x]
+
+        html_tag = Mock()
+        excluded_html_tag = Mock()
+
+        html_tag.get_image_url.return_value = expected_image_url
+        html_tag.get_score.return_value = 5
+
+        excluded_html_tag.is_excluded.return_value = True
+        excluded_html_tag.get_score.return_value = 0
+        browser_client_instance = Mock()
+        browser_client.return_value = browser_client_instance
+        browser_client_instance.get_potential_tags.return_value = [html_tag, excluded_html_tag]
+        self.assertEqual(self.logo_extractor.get_site_logo(), expected_image_url)
+
+    @patch('applications.page_parser.utils.BrowserClient.get_potential_tags')
+    def test_get_site_logo_should_return_empty_string_if_cannt_find_logo(self, get_potential_tags):
+        expected_value = ''
+        get_potential_tags.return_value = []
+        self.assertEqual(self.logo_extractor.get_site_logo(), expected_value)
