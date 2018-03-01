@@ -14,7 +14,7 @@ CSS_PROPERTY_VALUE_NONE = 'none'
 CSS_PROPERTY_VALUE_HIDDEN = 'hidden'
 
 IMPORTANT_ATTRIBUTES = ['id', 'class', 'alt', 'href']
-IMPORTANT_URLS = ['index', 'main', 'home']
+IMPORTANT_URLS = ['index', 'index.html', 'main', 'main.html', 'home', 'home.html']
 IMPORTANT_TAGS = ['header', 'footer', 'a']
 IMPORTANT_FILE_EXTENSIONS = ['.png', '.jpg', '.svg', '.gif', '.jpeg']
 

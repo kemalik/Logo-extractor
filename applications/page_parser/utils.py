@@ -232,7 +232,7 @@ class BrowserClient(object):
         Returns:
             list: list of selenium web elements
         """
-        self.browser.execute_script(SCRIPT_APPEND_CLASS_IMAGE_CONTAINERS)
+        self.browser.execute_script(SCRIPT_APPEND_CLASS_IMAGE_CONTAINERS)  # for optimize search element that have bg style
 
         elements_with_bg_style = self.get_elements_by_class(CLASS_NAME_BG_ELEMENT)
 

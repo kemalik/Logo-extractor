@@ -8,6 +8,7 @@ def check_attribute(tag: HtmlTag) -> HtmlTag:  # has attributes (class, id ...) 
         attribute_value = tag.get_attribute_value(attr)
         if not attribute_value:
             continue
+        attribute_value = attribute_value.lower()
         if any(word in attribute_value for word in LOGO_KEYWORDS):
             tag.add_score(PRIORITY_HIGH)
 
