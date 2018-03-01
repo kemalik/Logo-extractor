@@ -161,20 +161,15 @@ class LogoExtractorTestCase(TestCase):
     @patch('applications.page_parser.pipelines.scoring_pipeline')
     def test_get_site_logo_should_return_logo_of_given_url(self, scoring_pipeline, browser_client):
         expected_image_url = self.test_image_url
-
         scoring_pipeline.__iter__.return_value = [lambda x: x]
-
         html_tag = Mock()
-        excluded_html_tag = Mock()
 
         html_tag.get_image_url.return_value = expected_image_url
         html_tag.get_score.return_value = 5
 
-        excluded_html_tag.is_excluded.return_value = True
-        excluded_html_tag.get_score.return_value = 0
         browser_client_instance = Mock()
         browser_client.return_value = browser_client_instance
-        browser_client_instance.get_potential_tags.return_value = [html_tag, excluded_html_tag]
+        browser_client_instance.get_potential_tags.return_value = [html_tag]
         self.assertEqual(self.logo_extractor.get_site_logo(), expected_image_url)
 
     @patch('applications.page_parser.utils.BrowserClient.get_potential_tags')
