@@ -31,3 +31,11 @@ Run the needed Docker images with [docker-compose](https://docs.docker.com/compo
 Open [http://localhost:8000/?url=http://google.com](http://localhost:8000/?url=http://google.com) in a browser. You should see a extracted logo of [Google](https://google.com).
 
 ![result page](https://preview.ibb.co/nptWyH/logo_extractor.png)
+
+## Run tests
+Test settings live in `.testenv`. Copy `.testenv.sample` to `.testenv`:
+
+    $ cp .testenv.sample .testenv
+Run the needed Docker images with [docker-compose](https://docs.docker.com/compose/):
+
+    $ docker-compose -f docker-compose-test.yml up 
