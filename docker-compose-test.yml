@@ -1,0 +1,14 @@
+version: "2"
+
+services:
+  db:
+    image: mysql
+    restart: always
+    env_file: .testenv
+
+  web:
+    build: .
+    command: ["./bin/runtest.sh"]
+    depends_on:
+      - db
+    env_file: .testenv

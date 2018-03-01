@@ -174,8 +174,9 @@ class LogoExtractorTestCase(TestCase):
         browser_client_instance.get_potential_tags.return_value = [html_tag]
         self.assertEqual(self.logo_extractor.get_site_logo(), expected_image_url)
 
+    @patch('selenium.webdriver.Remote')
     @patch('applications.page_parser.utils.BrowserClient.get_potential_tags')
-    def test_get_site_logo_should_return_empty_string_if_cannt_find_logo(self, get_potential_tags):
+    def test_get_site_logo_should_return_empty_string_if_cannt_find_logo(self, get_potential_tags, driver):
         expected_value = ''
         get_potential_tags.return_value = []
         self.assertEqual(self.logo_extractor.get_site_logo(), expected_value)
