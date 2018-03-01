@@ -61,8 +61,10 @@ def check_element_parent(tag: HtmlTag) -> HtmlTag:  # is element in header, foot
                 tag.add_score(PRIORITY_HIGH)
             if attr == ATTRIBUTE_NAME_HREF and any(attribute_value.endswith(url) for url in IMPORTANT_URLS):
                 tag.add_score(PRIORITY_HIGH)
-
-        parent_tag = parent_tag.get_parent_tag()
+        try:
+            parent_tag = parent_tag.get_parent_tag()
+        except:
+            break
     return tag
 
 

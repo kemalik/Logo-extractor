@@ -167,7 +167,7 @@ class LogoExtractorTestCase(TestCase):
         html_tag = Mock()
 
         html_tag.get_image_url.return_value = expected_image_url
-        html_tag.get_score.return_value = 5
+        html_tag.get_score.return_value = 13
 
         browser_client_instance = Mock()
         browser_client.return_value = browser_client_instance

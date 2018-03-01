@@ -8,7 +8,6 @@ from applications.page_parser.constants import (
 from applications.page_parser.exceptions import LogoExtractorException
 from applications.page_parser.utils import LogoExtractor
 
-
 logger = logging.getLogger(__file__)
 
 

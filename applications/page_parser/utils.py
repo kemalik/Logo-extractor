@@ -6,11 +6,12 @@ from selenium import webdriver
 from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
 
 from applications.page_parser.constants import (
-    XPATH_ALL_IMAGES,
+    XPATH_ALL_IMAGES, MINIMUM_SCORE_FOR_ICON,
     REGEX_PATTERN_SUBSTRING_FROM_QUOTES, CSS_PROPERTY_BACKGROUND_IMAGE,
     CSS_PROPERTY_DISPLAY, CSS_PROPERTY_VISIBILITY, CSS_PROPERTY_VALUE_NONE, CSS_PROPERTY_VALUE_HIDDEN,
     SCRIPT_APPEND_CLASS_IMAGE_CONTAINERS, ATTRIBUTE_NAME_SRC, XPATH_PARENT_ELEMENT, CLASS_NAME_BG_ELEMENT)
 from applications.page_parser.exceptions import BrowserClientException, LogoExtractorException
+
 
 logger = logging.getLogger(__file__)
 
@@ -275,7 +276,10 @@ class LogoExtractor(object):
         """
         from applications.page_parser.pipelines import scoring_pipeline
         for checker in scoring_pipeline:
-            tag = checker(tag)
+            try:
+                tag = checker(tag)
+            except Exception as e:
+                raise LogoExtractorException(e)
             if tag.is_excluded():
                 break
         logging.info('Image url: {} score: {} '.format(tag.get_image_url(), tag.get_score()))
@@ -309,5 +313,5 @@ class LogoExtractor(object):
             scored_tags = list(map(self._give_score_for_tag, result))
 
             tag = self._get_max_scored_image(scored_tags)
-            return tag.get_image_url()
+            return tag.get_image_url() if tag.get_score() > MINIMUM_SCORE_FOR_ICON else ''
         return ''
