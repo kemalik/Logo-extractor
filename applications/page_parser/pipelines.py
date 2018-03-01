@@ -3,7 +3,15 @@ from applications.page_parser.constants import *  # TODO change to named
 from applications.page_parser.utils import HtmlTag
 
 
-def check_attribute(tag: HtmlTag) -> HtmlTag:  # has attributes (class, id ...) keywords
+def check_attribute(tag: HtmlTag) -> HtmlTag:
+    """
+    Check the tag attributes (class, id, etc.) has keywords
+    Args:
+        tag (HtmlTag): html tag
+
+    Returns:
+        HtmlTag: scored or not scored tag
+    """
     for attr in IMPORTANT_ATTRIBUTES:
         attribute_value = tag.get_attribute_value(attr)
         if not attribute_value:
@@ -17,7 +25,15 @@ def check_attribute(tag: HtmlTag) -> HtmlTag:  # has attributes (class, id ...) 
     return tag
 
 
-def check_image_url(tag: HtmlTag) -> HtmlTag:  # has image url path keywords
+def check_image_url(tag: HtmlTag) -> HtmlTag:
+    """
+    Check the image url path has keywords
+    Args:
+        tag (HtmlTag): html tag
+
+    Returns:
+        HtmlTag: scored or not scored tag
+    """
     tag_image_url = tag.get_image_url()
     if not tag_image_url:
         tag.exclude()
@@ -27,13 +43,29 @@ def check_image_url(tag: HtmlTag) -> HtmlTag:  # has image url path keywords
     return tag
 
 
-def check_image_extension(tag: HtmlTag) -> HtmlTag:  # has image extension png, jpg, ...
+def check_image_extension(tag: HtmlTag) -> HtmlTag:
+    """
+    Check the image name has extensions
+    Args:
+        tag (HtmlTag): html tag
+
+    Returns:
+        HtmlTag: scored or not scored tag
+    """
     if any(tag.get_image_url().endswith(extension) for extension in IMPORTANT_FILE_EXTENSIONS):
         tag.add_score(PRIORITY_LOW)
     return tag
 
 
-def check_image_size(tag: HtmlTag) -> HtmlTag:  # has image large, small size
+def check_image_size(tag: HtmlTag) -> HtmlTag:
+    """
+    Check the image size has acceptable size
+    Args:
+        tag (HtmlTag): html tag
+
+    Returns:
+        HtmlTag: scored or not scored tag
+    """
     tag_size = tag.get_size()
     width, height = tag_size[SIZE_KEY_WIDTH], tag_size[SIZE_KEY_HEIGHT]
 
@@ -42,7 +74,15 @@ def check_image_size(tag: HtmlTag) -> HtmlTag:  # has image large, small size
     return tag
 
 
-def check_element_coordinates(tag: HtmlTag) -> HtmlTag:  # check element location in page by x, y
+def check_element_coordinates(tag: HtmlTag) -> HtmlTag:
+    """
+    Check the image placement in top of page
+    Args:
+        tag (HtmlTag): html tag
+
+    Returns:
+        HtmlTag: scored or not scored tag
+    """
     coordinates = tag.get_coordinates()
     x, y = coordinates[COORDINATE_X], coordinates[COORDINATE_Y]
     if COORDINATE_Y_MIN < y < COORDINATE_Y_MAX and x > COORDINATE_X_MIN:
@@ -50,7 +90,15 @@ def check_element_coordinates(tag: HtmlTag) -> HtmlTag:  # check element locatio
     return tag
 
 
-def check_element_parent(tag: HtmlTag) -> HtmlTag:  # is element in header, footer ...
+def check_element_parent(tag: HtmlTag) -> HtmlTag:
+    """
+    Check the image parent tags have keywords in attributes and in url
+    Args:
+        tag (HtmlTag): html tag
+
+    Returns:
+        HtmlTag: scored or not scored tag
+    """
     parent_tag = tag.get_parent_tag()
     while parent_tag.get_name() != TAG_NAME_BODY:
         for attr in IMPORTANT_ATTRIBUTES:
@@ -68,7 +116,15 @@ def check_element_parent(tag: HtmlTag) -> HtmlTag:  # is element in header, foot
     return tag
 
 
-def check_element_visibility(tag: HtmlTag) -> HtmlTag:  # is element visible ...
+def check_element_visibility(tag: HtmlTag) -> HtmlTag:
+    """
+    Check the tag is visible for user
+    Args:
+        tag (HtmlTag): html tag
+
+    Returns:
+        HtmlTag: scored or not scored tag
+    """
     if tag.is_visible():
         tag.add_score(PRIORITY_MEDIUM)
     return tag
